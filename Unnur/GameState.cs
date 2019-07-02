@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework.Input;
+﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,13 +12,11 @@ namespace Unnur
     {
         private MouseState MouseState;
         private KeyboardState KeyboardState;
-        public Dungeon currentDungeon;
+        public Dungeon currentScene;
         public Player Player;
 
         public GameState()
         {
-            currentDungeon = new Dungeon();
-            Player = new Player();
         }
 
 

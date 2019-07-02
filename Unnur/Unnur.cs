@@ -21,6 +21,7 @@ namespace Unnur
         private Texture2D wallSprite;
         private SpriteFont titleFont;
 
+
         public Point MousePos;
         public MouseState MouseState;
         public KeyboardState KeyboardState;
@@ -49,19 +50,12 @@ namespace Unnur
             gameState = new GameState();
             IsMouseVisible = true;
 
-            gameState.Player.Image = Content.Load<Texture2D>("art/player_1");
-            enemySprite = Content.Load<Texture2D>("art/enemy_1");
-            wallSprite = Content.Load<Texture2D>("art/enemy_1");
 
-            foreach (Wall wallObject in gameState.currentDungeon.GetWalls())
-            {
-                RenderTarget2D newWallImage = new RenderTarget2D(GraphicsDevice, (int)wallObject.GetWidth(), (int)wallObject.GetHeight());
-                GraphicsDevice.SetRenderTarget(newWallImage);
-                GraphicsDevice.Clear(Color.Azure);
 
-                wallObject.Image = newWallImage;
-            }
-            GraphicsDevice.SetRenderTarget(null);
+            gameState.currentScene = new Dungeon(new Point(1900, 900));
+            gameState.Player = new Player(new Vector2(32, 64), new Vector2(32, 0));
+            gameState.currentScene.AddCharacter(gameState.Player);
+
 
 
             base.Initialize();
@@ -75,6 +69,23 @@ namespace Unnur
         {
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
+            gameState.Player.Image = Content.Load<Texture2D>("art/player_1");
+            enemySprite = Content.Load<Texture2D>("art/enemy_1");
+            wallSprite = Content.Load<Texture2D>("art/enemy_1");
+
+            /// Graphics initialization stuff
+            foreach (Entity wallObject in gameState.currentScene.GetCollideableEntities())
+            {
+                if (wallObject.Image == null)
+                {
+                    RenderTarget2D newWallImage = new RenderTarget2D(GraphicsDevice, (int)wallObject.GetWidth(), (int)wallObject.GetHeight());
+                    GraphicsDevice.SetRenderTarget(newWallImage);
+                    GraphicsDevice.Clear(Color.Azure);
+                    wallObject.Image = newWallImage;
+                }
+
+            }
+            GraphicsDevice.SetRenderTarget(null);
 
             // TODO: use this.Content to load your game content here
         }
@@ -110,22 +121,22 @@ namespace Unnur
             if (KeyboardState.IsKeyDown(Keys.D))
             {
                 DisplayShift.X -= 5;
-                gameState.Player.Move(5, 0);
+                gameState.Player.SetVelocity(5, 0);
             }
             if (KeyboardState.IsKeyDown(Keys.A))
             {
                 DisplayShift.X += 5;
-                gameState.Player.Move(-5, 0);
+                gameState.Player.SetVelocity(-5, 0);
             }
             if (KeyboardState.IsKeyDown(Keys.W))
             {
                 DisplayShift.Y += 5;
-                gameState.Player.Move(0, -5);
+                gameState.Player.SetVelocity(0, -5);
             }
             if (KeyboardState.IsKeyDown(Keys.S))
             {
                 DisplayShift.Y -= 5;
-                gameState.Player.Move(0, 5);
+                gameState.Player.SetVelocity(0, 5);
             }
             if (KeyboardState.IsKeyDown(Keys.Escape))
             {
@@ -133,7 +144,12 @@ namespace Unnur
             }
 
             // TODO: Add your update logic here
-
+            foreach (MoveableEntity movingEntity in gameState.currentScene.GetMovingEntities())
+            {
+                movingEntity.ApplyGravity();
+                movingEntity.Move();
+                
+            }
             base.Update(gameTime);
         }
 
@@ -145,11 +161,9 @@ namespace Unnur
         {
             GraphicsDevice.Clear(Color.DarkSlateGray);
             spriteBatch.Begin();
-            spriteBatch.Draw(gameState.Player.Image, new Vector2(gameState.Player.GetPos().X + DisplayShift.X, gameState.Player.GetPos().Y + DisplayShift.Y), Color.White);
-            spriteBatch.Draw(enemySprite, new Vector2(256 + DisplayShift.X, 900 - 96 + DisplayShift.Y), Color.White);
-            foreach (Wall wallObject in gameState.currentDungeon.GetWalls())
+            foreach (Entity renderObject in gameState.currentScene.GetEntities())
             {
-                spriteBatch.Draw(wallObject.Image, new Vector2(wallObject.GetLeft() + DisplayShift.X, wallObject.GetTop() + DisplayShift.Y), Color.White);
+                spriteBatch.Draw(renderObject.Image, new Vector2(renderObject.GetLeft() + DisplayShift.X, renderObject.GetTop() + DisplayShift.Y), Color.White);
             }
 
             spriteBatch.End();

@@ -8,26 +8,13 @@ using System.Threading.Tasks;
 
 namespace Unnur
 {
-    class Player
+    class Player : Character
     {
-        private Vector2 coordinates;
-        public Texture2D Image;
 
-        public Player()
+        public Player(Vector2 dimensions, Vector2 coordinates) : base(dimensions, coordinates)
         {
-            coordinates = new Vector2(32, 900  - 96);
+            coordinates = new Vector2();
 
-        }
-
-        public Vector2 GetPos()
-        {
-            return coordinates;
-        }
-
-        public void Move(double xTranlsation, double yTranslation)
-        {
-            Vector2 newCoordinates = new Vector2((int)(coordinates.X + xTranlsation), (int)(coordinates.Y + yTranslation));
-            coordinates = newCoordinates;
         }
     }
 }

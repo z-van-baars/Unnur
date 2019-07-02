@@ -10,14 +10,18 @@ namespace Unnur
 {
     class Entity
     {
-        private Vector2 coordinates;
-        private Vector2 dimensions;
+        protected Vector2 coordinates;
+        protected Vector2 dimensions;
+        protected bool hasPhysics;
+        protected bool isCollideable;
+        protected bool isAnimated;
         public Texture2D Image;
 
         public Entity(Vector2 dimensions, Vector2 coordinates)
         {
             this.coordinates = coordinates;
             this.dimensions = dimensions;
+            hasPhysics = false;
         }
         public float GetWidth()
         {
@@ -26,6 +30,23 @@ namespace Unnur
         public float GetHeight()
         {
             return dimensions.Y;
+        }
+        public bool HasPhysics()
+        {
+            return hasPhysics;
+        }
+        public bool IsCollideable()
+        {
+            return isCollideable;
+        }
+        public bool IsAnimated()
+        {
+            return isAnimated;
+        }
+
+        public Vector2 GetPos()
+        {
+            return coordinates;
         }
         public float GetTop()
         {
@@ -43,5 +64,6 @@ namespace Unnur
         {
             return coordinates.Y + dimensions.Y;
         }
+
     }
 }

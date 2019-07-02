@@ -7,11 +7,11 @@ using System.Threading.Tasks;
 
 namespace Unnur
 {
-    class CollideableEntity : Entity
+    class Enemy : Character
     {
-        public CollideableEntity(Vector2 dimensions, Vector2 coordinates) : base(dimensions, coordinates)
+        public Enemy(Vector2 dimensions, Vector2 coordinates) : base(dimensions, coordinates)
         {
-            isCollideable = true;
+
         }
     }
 }
