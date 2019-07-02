@@ -10,13 +10,22 @@ namespace Unnur
     class Scene
     {
         protected Point dimensions;
+        protected Tile[,] tiles;
         protected List<Entity> entities = new List<Entity>();
         protected List<Entity> collideableEntities = new List<Entity>();
         protected List<Entity> movingEntities = new List<Entity>();
         protected List<Entity> characters = new List<Entity>();
         public Scene(Point dimensions)
         {
-            this.dimensions = dimensions;
+            this.dimensions = new Point(dimensions.X * 32, dimensions.Y * 32);
+            this.tiles = new Tile[dimensions.X, dimensions.Y];
+            for (int y = 0; y < dimensions.Y; y++)
+            {
+                for (int x = 0; x < dimensions.X; x++)
+                {
+                    tiles[y, x] = new Tile(new Point(x, y));
+                }
+            }
         }
         public List<Entity> GetEntities()
         {
