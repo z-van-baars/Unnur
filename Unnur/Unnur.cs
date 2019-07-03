@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
+using System.Collections.Generic;
 
 namespace Unnur
 {
@@ -18,10 +19,11 @@ namespace Unnur
 
         private SpriteFont headerFont;
         private Texture2D enemySprite;
+        private Texture2D collisionHelper;
         private Texture2D wallSprite;
         private SpriteFont titleFont;
 
-
+        private Collision collision;
         public Point MousePos;
         public MouseState MouseState;
         public KeyboardState KeyboardState;
@@ -49,13 +51,11 @@ namespace Unnur
         {
             gameState = new GameState();
             IsMouseVisible = true;
-
-
-
-            gameState.currentScene = new Dungeon(new Point(1900, 900));
-            gameState.Player = new Player(new Vector2(32, 64), new Vector2(32, 0));
+            DisplayShift = new Point(200, 10);
+            gameState.currentScene = new Dungeon(new Point(60, 30));
+            gameState.Player = new Player(new Vector2(32, 64), new Vector2(32, 600));
             gameState.currentScene.AddCharacter(gameState.Player);
-
+            collision = new Collision();
 
 
             base.Initialize();
@@ -72,6 +72,7 @@ namespace Unnur
             gameState.Player.Image = Content.Load<Texture2D>("art/player_1");
             enemySprite = Content.Load<Texture2D>("art/enemy_1");
             wallSprite = Content.Load<Texture2D>("art/enemy_1");
+            collisionHelper = Content.Load<Texture2D>("art/collision_visualizer");
 
             /// Graphics initialization stuff
             foreach (Entity wallObject in gameState.currentScene.GetCollideableEntities())
@@ -85,6 +86,33 @@ namespace Unnur
                 }
 
             }
+            spriteBatch.Begin();
+            foreach (Entity entityObject in gameState.currentScene.GetEntities())
+            {
+                RenderTarget2D newAabbRenderBox = new RenderTarget2D(GraphicsDevice, (int)entityObject.Aabb.GetWidth(), (int)entityObject.Aabb.GetHeight());
+                RenderTarget2D dot = new RenderTarget2D(GraphicsDevice, 1, 1);
+                GraphicsDevice.SetRenderTarget(dot);
+                GraphicsDevice.Clear(Color.Red);
+                GraphicsDevice.SetRenderTarget(newAabbRenderBox);
+                GraphicsDevice.Clear(Color.Transparent);
+                float aabbBottom = entityObject.Aabb.GetHeight() - 1;
+                for (int x = 0; x < (int)entityObject.Aabb.GetWidth(); x++)
+                {
+                    spriteBatch.Draw(dot, new Vector2(x, 0), Color.White);
+                    
+                    spriteBatch.Draw(dot, new Vector2(x, (int)aabbBottom), Color.White);
+                    /// spriteBatch.Draw(dot, new Vector2(x, entityObject.Aabb.GetHeight() - 1), Color.White);
+                }
+                for (int y = 0; y < (int)entityObject.Aabb.GetHeight(); y++)
+                {
+                    spriteBatch.Draw(dot, new Vector2(0, y), Color.White);
+                    spriteBatch.Draw(dot, new Vector2(entityObject.Aabb.GetWidth() - 1, y), Color.White);
+                }
+                
+                entityObject.Aabb.RenderBox = newAabbRenderBox;
+                
+            }
+            spriteBatch.End();
             GraphicsDevice.SetRenderTarget(null);
 
             // TODO: use this.Content to load your game content here
@@ -120,35 +148,65 @@ namespace Unnur
 
             if (KeyboardState.IsKeyDown(Keys.D))
             {
-                DisplayShift.X -= 5;
                 gameState.Player.SetVelocity(5, 0);
             }
             if (KeyboardState.IsKeyDown(Keys.A))
             {
-                DisplayShift.X += 5;
                 gameState.Player.SetVelocity(-5, 0);
             }
-            if (KeyboardState.IsKeyDown(Keys.W))
+            if (KeyboardState.IsKeyDown(Keys.Space)
+                && lastKeyboardState.IsKeyUp(Keys.Space))
             {
-                DisplayShift.Y += 5;
-                gameState.Player.SetVelocity(0, -5);
+                gameState.Player.Jump();
             }
             if (KeyboardState.IsKeyDown(Keys.S))
             {
-                DisplayShift.Y -= 5;
-                gameState.Player.SetVelocity(0, 5);
+                gameState.Player.Crouch();
             }
             if (KeyboardState.IsKeyDown(Keys.Escape))
             {
                 Exit();
             }
+            if (MouseState.LeftButton == ButtonState.Released
+                && lastMouseState.LeftButton == ButtonState.Pressed)
+            {
 
+            }
+
+            if (gameState.Player.GetLeft() + DisplayShift.X < 300)
+            {
+                DisplayShift.X = ((int)gameState.Player.GetLeft() - 300);
+            }
+            if (gameState.Player.GetRight() + DisplayShift.X > DisplayDimensions.X - 400)
+            {
+                DisplayShift.X = ((int)gameState.Player.GetRight() - (DisplayDimensions.X - 400));
+            }
+            if (gameState.Player.GetTop() + DisplayShift.Y < 300)
+            {
+                DisplayShift.Y = ((int)gameState.Player.GetTop() - 300);
+            }
+            if (gameState.Player.GetBottom() + DisplayShift.Y > DisplayDimensions.Y - 300)
+            {
+                DisplayShift.Y = ((int)gameState.Player.GetBottom() - (DisplayDimensions.Y - 300));
+            }
             // TODO: Add your update logic here
+            foreach (PhysicalEntity physicalEntity in gameState.currentScene.GetPhysicalEntities())
+            {
+                physicalEntity.ApplyGravity();
+            }
             foreach (MoveableEntity movingEntity in gameState.currentScene.GetMovingEntities())
             {
-                movingEntity.ApplyGravity();
+                foreach (CollideableEntity collideableEntity in gameState.currentScene.GetCollideableEntities())
+                {
+                    if (collision.CollisionCheck(movingEntity, collideableEntity, movingEntity.GetVelocity())
+                        && collideableEntity != movingEntity)
+                    {
+                        movingEntity.ResetVelocity();
+                        break;
+                    }
+                }
+
                 movingEntity.Move();
-                
             }
             base.Update(gameTime);
         }
@@ -164,6 +222,16 @@ namespace Unnur
             foreach (Entity renderObject in gameState.currentScene.GetEntities())
             {
                 spriteBatch.Draw(renderObject.Image, new Vector2(renderObject.GetLeft() + DisplayShift.X, renderObject.GetTop() + DisplayShift.Y), Color.White);
+                List<Point> tilesOccupied;
+                tilesOccupied = renderObject.GetOccupiedTiles();
+                foreach (Point tileOccupied in tilesOccupied)
+                {
+                    if (renderObject.IsCollideable())
+                    {
+                        /// spriteBatch.Draw(collisionHelper, new Vector2(tileOccupied.X * 32 + DisplayShift.X, tileOccupied.Y * 32 + DisplayShift.Y), Color.White);
+                        spriteBatch.Draw(renderObject.Aabb.RenderBox, new Vector2(renderObject.Aabb.GetPos().X + DisplayShift.X, renderObject.Aabb.GetPos().Y + DisplayShift.Y), Color.White);
+                    }
+                }
             }
 
             spriteBatch.End();

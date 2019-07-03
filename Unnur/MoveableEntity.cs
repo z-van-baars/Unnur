@@ -11,7 +11,7 @@ namespace Unnur
     class MoveableEntity : CollideableEntity
     {
         protected Vector2 velocity;
-        public MoveableEntity(Vector2 dimensions, Vector2 coordinates) : base(dimensions, coordinates)
+        public MoveableEntity(Vector2 dimensions, Vector2 coordinates, Vector2 aabbDimensions) : base(dimensions, coordinates, aabbDimensions)
         {
             hasPhysics = true;
         }
@@ -25,12 +25,20 @@ namespace Unnur
         {
             Vector2 newCoordinates = new Vector2((int)(coordinates.X + velocity.X), (int)(coordinates.Y + velocity.Y));
             coordinates = newCoordinates;
+            Aabb.SetPosition(coordinates);
         }
-        public void ApplyGravity()
+        public void ResetVelocity()
         {
-            int maxSpeed = 11;
-            Vector2 newVelocity = new Vector2(velocity.X, Math.Min(maxSpeed, velocity.Y + 1));
-            velocity = newVelocity;
+            velocity = new Vector2(0, 0);
+        }
+
+        public Vector2 GetVelocity()
+        {
+            return velocity;
+        }
+        public virtual void Deflect()
+        {
+            velocity = new Vector2(-velocity.X, -velocity.Y);
         }
     }
 }

@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 
 namespace Unnur
 {
-    class Character : MoveableEntity
+    class Character : PhysicalEntity
     {
-        public Character(Vector2 dimensions, Vector2 coordinates) : base(dimensions, coordinates)
+        public Character(Vector2 dimensions, Vector2 coordinates, Vector2 aabbDimensions) : base(dimensions, coordinates, aabbDimensions)
         {
 
         }

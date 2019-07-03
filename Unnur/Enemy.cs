@@ -9,7 +9,7 @@ namespace Unnur
 {
     class Enemy : Character
     {
-        public Enemy(Vector2 dimensions, Vector2 coordinates) : base(dimensions, coordinates)
+        public Enemy(Vector2 dimensions, Vector2 coordinates) : base(dimensions, coordinates, dimensions)
         {
 
         }

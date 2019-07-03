@@ -9,7 +9,7 @@ namespace Unnur
 {
     class Scenery : Entity
     {
-        public Scenery(Vector2 dimensions, Vector2 coordinates) : base(dimensions, coordinates)
+        public Scenery(Vector2 dimensions, Vector2 coordinates) : base(dimensions, coordinates, dimensions)
         {
 
         }

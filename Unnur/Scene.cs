@@ -14,11 +14,12 @@ namespace Unnur
         protected List<Entity> entities = new List<Entity>();
         protected List<Entity> collideableEntities = new List<Entity>();
         protected List<Entity> movingEntities = new List<Entity>();
+        protected List<Entity> physicalEntities = new List<Entity>();
         protected List<Entity> characters = new List<Entity>();
         public Scene(Point dimensions)
         {
             this.dimensions = new Point(dimensions.X * 32, dimensions.Y * 32);
-            this.tiles = new Tile[dimensions.X, dimensions.Y];
+            tiles = new Tile[dimensions.Y, dimensions.X];
             for (int y = 0; y < dimensions.Y; y++)
             {
                 for (int x = 0; x < dimensions.X; x++)
@@ -43,11 +44,17 @@ namespace Unnur
         {
             return characters;
         }
+        public List<Entity> GetPhysicalEntities()
+        {
+            return physicalEntities;
+        }
+
         public void AddCharacter(Entity newCharacter)
         {
             entities.Add(newCharacter);
             movingEntities.Add(newCharacter);
             collideableEntities.Add(newCharacter);
+            physicalEntities.Add(newCharacter);
             characters.Add(newCharacter);
         }
         public void AddMovingEntity(Entity newMovingEntity)
@@ -63,6 +70,12 @@ namespace Unnur
         {
             entities.Add(newStaticCollideable);
             collideableEntities.Add(newStaticCollideable);
+        }
+        public void AddPhysicalEntity(Entity newPhysicalEntity)
+        {
+            entities.Add(newPhysicalEntity);
+            collideableEntities.Add(newPhysicalEntity);
+            physicalEntities.Add(newPhysicalEntity);
         }
     }
 }

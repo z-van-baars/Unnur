@@ -11,9 +11,21 @@ namespace Unnur
     class Player : Character
     {
 
-        public Player(Vector2 dimensions, Vector2 coordinates) : base(dimensions, coordinates)
+        public Player(Vector2 dimensions, Vector2 coordinates) : base(dimensions, coordinates, dimensions)
         {
             coordinates = new Vector2();
+
+        }
+        public void Jump()
+        {
+            if (velocity.Y == 0)
+            {
+                SetVelocity(0, -20);
+            }
+            
+        }
+        public void Crouch()
+        {
 
         }
     }

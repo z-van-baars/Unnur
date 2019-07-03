@@ -9,9 +9,12 @@ namespace Unnur
 {
     class CollideableEntity : Entity
     {
-        public CollideableEntity(Vector2 dimensions, Vector2 coordinates) : base(dimensions, coordinates)
+
+        public CollideableEntity(Vector2 dimensions, Vector2 coordinates, Vector2 aabbDimensions) : base(dimensions, coordinates, aabbDimensions)
         {
             isCollideable = true;
+            
+            
         }
     }
 }

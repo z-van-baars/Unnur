@@ -41,14 +41,18 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="AABB.cs" />
     <Compile Include="Character.cs" />
     <Compile Include="CollideableEntity.cs" />
+    <Compile Include="Collision.cs" />
     <Compile Include="Dungeon.cs" />
     <Compile Include="Enemy.cs" />
     <Compile Include="Entity.cs" />
     <Compile Include="MoveableEntity.cs" />
+    <Compile Include="PhysicalEntity.cs" />
     <Compile Include="Scene.cs" />
     <Compile Include="Scenery.cs" />
+    <Compile Include="Tile.cs" />
     <Compile Include="Wall.cs" />
     <Compile Include="GameState.cs" />
     <Compile Include="Player.cs" />
