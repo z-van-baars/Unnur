@@ -16,7 +16,6 @@ namespace Unnur
         public bool CollisionCheck(Entity entity1, Entity entity2, Vector2 velocity)
         {
             Vector2 center1 = GetCenterpoint(entity1, velocity);
-            Vector2 center2 = GetCenterpoint(entity2, new Vector2(0, 0));
 
             return CheckInside(
                 center1,

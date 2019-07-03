@@ -173,22 +173,7 @@ namespace Unnur
 
             }
 
-            if (gameState.Player.GetLeft() + DisplayShift.X < 300)
-            {
-                DisplayShift.X = ((int)gameState.Player.GetLeft() - 300);
-            }
-            if (gameState.Player.GetRight() + DisplayShift.X > DisplayDimensions.X - 400)
-            {
-                DisplayShift.X = ((int)gameState.Player.GetRight() - (DisplayDimensions.X - 400));
-            }
-            if (gameState.Player.GetTop() + DisplayShift.Y < 300)
-            {
-                DisplayShift.Y = ((int)gameState.Player.GetTop() - 300);
-            }
-            if (gameState.Player.GetBottom() + DisplayShift.Y > DisplayDimensions.Y - 300)
-            {
-                DisplayShift.Y = ((int)gameState.Player.GetBottom() - (DisplayDimensions.Y - 300));
-            }
+            DisplayShift = new Point(-(int)gameState.Player.GetLeft() + (int)(DisplayDimensions.X / 2) - 32, -(int)gameState.Player.GetTop() + (int)DisplayDimensions.Y / 2 - 64);
             // TODO: Add your update logic here
             foreach (PhysicalEntity physicalEntity in gameState.currentScene.GetPhysicalEntities())
             {
