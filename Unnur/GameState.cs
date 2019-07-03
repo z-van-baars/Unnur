@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
@@ -56,6 +57,49 @@ namespace Unnur
             lastMouseState = mouseState;
         }
 
+        public void ResetAABBRenderBoxes(GraphicsDevice GraphicsDevice)
+        {
+            SpriteBatch spriteBatch = new SpriteBatch(GraphicsDevice);
+            
+            RenderTarget2D dot = new RenderTarget2D(GraphicsDevice, 1, 1);
+            GraphicsDevice.SetRenderTarget(dot);
+            GraphicsDevice.Clear(Color.Red);
+            foreach (Entity entityObject in currentScene.GetEntities())
+            {
+                spriteBatch.Begin();
+                RenderTarget2D newAabbRenderBox = new RenderTarget2D(
+                    GraphicsDevice,
+                    (int)entityObject.Aabb.GetWidth(),
+                    (int)entityObject.Aabb.GetHeight());
+
+                GraphicsDevice.SetRenderTarget(newAabbRenderBox);
+                GraphicsDevice.Clear(Color.Transparent);
+                float aabbBottom = entityObject.Aabb.GetHeight() - 1;
+                for (int x = 0; x < (int)entityObject.Aabb.GetWidth(); x++)
+                {
+                    spriteBatch.Draw(dot, new Vector2(x, 0), Color.White);
+
+                    spriteBatch.Draw(dot, new Vector2(x, (int)aabbBottom), Color.White);
+                    /// spriteBatch.Draw(dot, new Vector2(x, entityObject.Aabb.GetHeight() - 1), Color.White);
+                }
+                for (int y = 0; y < (int)entityObject.Aabb.GetHeight(); y++)
+                {
+                    spriteBatch.Draw(dot, new Vector2(0, y), Color.White);
+                    spriteBatch.Draw(dot, new Vector2(entityObject.Aabb.GetWidth() - 1, y), Color.White);
+                }
+                Texture2D newAabbRenderBoxTexture = new Texture2D(
+                                                            GraphicsDevice,
+                                                            (int)entityObject.Aabb.GetWidth(),
+                                                            (int)entityObject.Aabb.GetHeight());
+                newAabbRenderBoxTexture = newAabbRenderBox;
+                entityObject.Aabb.RenderBox = newAabbRenderBoxTexture;
+                spriteBatch.End();
+                
+
+            }
+            GraphicsDevice.SetRenderTarget(null);
+
+        }
 
     }
 }

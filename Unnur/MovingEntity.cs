@@ -45,7 +45,7 @@ namespace Unnur
             Aabb.SetPosition(coordinates);
             Aabb.Recenter();
 
-            if (coordinates.Y > 862)
+            if (coordinates.Y >= 862)
             {
                 coordinates.Y = 862;
                 OnGround = true;

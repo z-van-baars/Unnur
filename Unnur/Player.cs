@@ -35,7 +35,7 @@ namespace Unnur
         public bool[] PrevKInputs;
         public bool[] MInputs;
         public bool[] PrevMInputs;
-        public CharacterState CurrentState = CharacterState.Stand;
+        public new CharacterState CurrentState = CharacterState.Stand;
         public const float JumpSpeed = -15;
         public const float MinJumpSpeed = -5;
         public const float WalkSpeed = 5;
@@ -46,7 +46,7 @@ namespace Unnur
             KInputs = new bool[(int)KeyInput.Count];
             PrevKInputs = new bool[(int)KeyInput.Count];
             MInputs = new bool[(int)MouseInput.Count];
-            MInputs = new bool[(int)MouseInput.Count];
+            PrevMInputs = new bool[(int)MouseInput.Count];
 
         }
         protected bool Released(KeyInput key)
@@ -63,25 +63,18 @@ namespace Unnur
         {
             return (KInputs[(int)key] && !PrevKInputs[(int)key]);
         }
-        public void Jump()
-        {
-            if (Velocity.Y == 0)
-            {
-                SetVelocity(0, -20);
-            }
-            
-        }
-        public void Crouch()
-        {
-
-        }
         public void UpdatePrevInputs()
         {
-            var count = (byte)KeyInput.Count;
+            var count1 = (byte)KeyInput.Count;
 
-            for (byte i = 0; i < count; i++)
+            for (byte i = 0; i < count1; i++)
             {
                 PrevKInputs[i] = KInputs[i];
+            }
+            var count2 = (byte)MouseInput.Count;
+            for (byte j = 0; j < count2; j++)
+            {
+                PrevMInputs[j] = MInputs[j];
             }
         }
         public void KeyInputSetter(KeyboardState keyState, MouseState mouseState)
@@ -90,7 +83,7 @@ namespace Unnur
             KInputs[(int)KeyInput.MoveLeft] = keyState.IsKeyDown(Keys.A);
             KInputs[(int)KeyInput.Jump] = keyState.IsKeyDown(Keys.Space);
         }
-        public void Update(KeyboardState keyState, MouseState mouseState)
+        public override void Update(KeyboardState keyState, MouseState mouseState)
         {
             KeyInputSetter(keyState, mouseState);
             switch (CurrentState)

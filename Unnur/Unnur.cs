@@ -21,6 +21,7 @@ namespace Unnur
         private Texture2D enemySprite;
         private Texture2D collisionHelper;
         private Texture2D wallSprite;
+        private Texture2D rockSprite;
         private SpriteFont titleFont;
 
         private Collision collision;
@@ -70,6 +71,7 @@ namespace Unnur
             gameState.Player.Image = Content.Load<Texture2D>("art/player_1");
             enemySprite = Content.Load<Texture2D>("art/enemy_1");
             wallSprite = Content.Load<Texture2D>("art/enemy_1");
+            rockSprite = Content.Load<Texture2D>("art/rock");
             collisionHelper = Content.Load<Texture2D>("art/collision_visualizer");
 
             /// Graphics initialization stuff
@@ -85,37 +87,7 @@ namespace Unnur
                 }
 
             }
-            spriteBatch.Begin();
-            foreach (Entity entityObject in gameState.currentScene.GetEntities())
-            {
-                RenderTarget2D newAabbRenderBox = new RenderTarget2D(
-                    GraphicsDevice,
-                    (int)entityObject.Aabb.GetWidth(),
-                    (int)entityObject.Aabb.GetHeight());
-                RenderTarget2D dot = new RenderTarget2D(GraphicsDevice, 1, 1);
-                GraphicsDevice.SetRenderTarget(dot);
-                GraphicsDevice.Clear(Color.Red);
-                GraphicsDevice.SetRenderTarget(newAabbRenderBox);
-                GraphicsDevice.Clear(Color.Transparent);
-                float aabbBottom = entityObject.Aabb.GetHeight() - 1;
-                for (int x = 0; x < (int)entityObject.Aabb.GetWidth(); x++)
-                {
-                    spriteBatch.Draw(dot, new Vector2(x, 0), Color.White);
-                    
-                    spriteBatch.Draw(dot, new Vector2(x, (int)aabbBottom), Color.White);
-                    /// spriteBatch.Draw(dot, new Vector2(x, entityObject.Aabb.GetHeight() - 1), Color.White);
-                }
-                for (int y = 0; y < (int)entityObject.Aabb.GetHeight(); y++)
-                {
-                    spriteBatch.Draw(dot, new Vector2(0, y), Color.White);
-                    spriteBatch.Draw(dot, new Vector2(entityObject.Aabb.GetWidth() - 1, y), Color.White);
-                }
-                
-                entityObject.Aabb.RenderBox = newAabbRenderBox;
-                
-            }
-            spriteBatch.End();
-            GraphicsDevice.SetRenderTarget(null);
+            gameState.ResetAABBRenderBoxes(GraphicsDevice);
 
             // TODO: use this.Content to load your game content here
         }
@@ -153,13 +125,23 @@ namespace Unnur
             {
                 Exit();
             }
+            if (gameState.GetMouseState().LeftButton == ButtonState.Released
+                && gameState.GetLastMouseState().LeftButton == ButtonState.Pressed)
+            {
+                Rock newRock = new Rock(new Vector2(20, 20), new Vector2(MousePos.X - gameState.DisplayShift.X, MousePos.Y - gameState.DisplayShift.Y));
+                newRock.Image = rockSprite;
+                gameState.currentScene.AddPhysicalEntity(newRock);
+                gameState.ResetAABBRenderBoxes(GraphicsDevice);
+            }
             
             gameState.DisplayShift = new Point(
                 -(int)gameState.Player.GetLeft() + (int)(DisplayDimensions.X / 2) - 32,
                 -(int)gameState.Player.GetTop() + (int)DisplayDimensions.Y / 2 - 64);
 
-            gameState.Player.Update(gameState.GetKeyState(), gameState.GetMouseState());
-
+            foreach (PhysicalEntity physEntity in gameState.currentScene.GetPhysicalEntities())
+            {
+                physEntity.Update(gameState.GetKeyState(), gameState.GetMouseState());
+            }
             gameState.ArchiveInputs();
             base.Update(gameTime);
         }
@@ -184,11 +166,12 @@ namespace Unnur
                     if (renderObject.IsCollideable())
                     {
                         spriteBatch.Draw(collisionHelper, new Vector2(tileOccupied.X * 32 + gameState.DisplayShift.X, tileOccupied.Y * 32 + gameState.DisplayShift.Y), Color.White);
-                        spriteBatch.Draw(renderObject.Aabb.RenderBox, new Vector2(
-                            renderObject.Aabb.GetPos().X + gameState.DisplayShift.X,
-                            renderObject.Aabb.GetPos().Y + gameState.DisplayShift.Y), Color.White);
+
                     }
                 }
+                spriteBatch.Draw(renderObject.Aabb.RenderBox, new Vector2(
+                    renderObject.Aabb.GetPos().X + gameState.DisplayShift.X,
+                    renderObject.Aabb.GetPos().Y + gameState.DisplayShift.Y), Color.White);
             }
 
             spriteBatch.End();

@@ -50,6 +50,7 @@
     <Compile Include="Entity.cs" />
     <Compile Include="MovingEntity.cs" />
     <Compile Include="PhysicalEntity.cs" />
+    <Compile Include="Rock.cs" />
     <Compile Include="Scene.cs" />
     <Compile Include="Scenery.cs" />
     <Compile Include="Tile.cs" />
