@@ -16,5 +16,9 @@ namespace Unnur
             
             
         }
+        public virtual void UpdatePhysicsResponse(List<Entity> collisions)
+        {
+
+        }
     }
 }

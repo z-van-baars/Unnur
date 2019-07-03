@@ -35,5 +35,7 @@ namespace Unnur
                 entity1.GetPos().X + velocity.X + entity1.GetWidth() / 2,
                 entity1.GetPos().Y + velocity.Y + entity1.GetHeight() / 2);
         }
+
+
     }
 }

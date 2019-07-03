@@ -146,73 +146,21 @@ namespace Unnur
 
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed
                 || Keyboard.GetState().IsKeyDown(Keys.Escape))
+            {
                 Exit();
-
-            if (gameState.GetKeyState().IsKeyDown(Keys.D))
-            {
-                gameState.Player.SetVelocity(5, 0);
-            }
-            if (gameState.GetKeyState().IsKeyDown(Keys.A))
-            {
-                gameState.Player.SetVelocity(-5, 0);
-            }
-            if (gameState.GetKeyState().IsKeyDown(Keys.Space)
-                && gameState.GetLastKeyState().IsKeyUp(Keys.Space))
-            {
-                gameState.Player.Jump();
-            }
-            if (gameState.GetKeyState().IsKeyDown(Keys.S))
-            {
-                gameState.Player.Crouch();
             }
             if (gameState.GetKeyState().IsKeyDown(Keys.Escape))
             {
                 Exit();
             }
-            if (gameState.GetMouseState().LeftButton == ButtonState.Released
-                && gameState.GetLastMouseState().LeftButton == ButtonState.Pressed)
-            {
-
-            }
-
+            
             gameState.DisplayShift = new Point(
                 -(int)gameState.Player.GetLeft() + (int)(DisplayDimensions.X / 2) - 32,
                 -(int)gameState.Player.GetTop() + (int)DisplayDimensions.Y / 2 - 64);
 
-            // TODO: Add your update logic here
-            foreach (PhysicalEntity physicalEntity in gameState.currentScene.GetPhysicalEntities())
-            {
-                foreach (CollideableEntity collideableEntity in gameState.currentScene.GetCollideableEntities())
-                {
-                    if (!(collision.CollisionCheck(
-                            physicalEntity,
-                            collideableEntity,
-                            physicalEntity.GetVelocity()))
-                        && collideableEntity != physicalEntity)
-                    {
-                        physicalEntity.ApplyGravity();
-                        break;
-                    }
-                }
-                
-            }
-            foreach (MoveableEntity movingEntity in gameState.currentScene.GetMovingEntities())
-            {
-                foreach (CollideableEntity collideableEntity in gameState.currentScene.GetCollideableEntities())
-                {
-                    if (collision.CollisionCheck(
-                            movingEntity,
-                            collideableEntity,
-                            movingEntity.GetVelocity())
-                        && collideableEntity != movingEntity)
-                    {
-                        movingEntity.Deflect(collideableEntity);
-                        break;
-                    }
-                }
+            gameState.Player.Update(gameState.GetKeyState(), gameState.GetMouseState());
 
-                movingEntity.Move();
-            }
+            gameState.ArchiveInputs();
             base.Update(gameTime);
         }
 
@@ -235,7 +183,7 @@ namespace Unnur
                 {
                     if (renderObject.IsCollideable())
                     {
-                        /// spriteBatch.Draw(collisionHelper, new Vector2(tileOccupied.X * 32 + DisplayShift.X, tileOccupied.Y * 32 + DisplayShift.Y), Color.White);
+                        spriteBatch.Draw(collisionHelper, new Vector2(tileOccupied.X * 32 + gameState.DisplayShift.X, tileOccupied.Y * 32 + gameState.DisplayShift.Y), Color.White);
                         spriteBatch.Draw(renderObject.Aabb.RenderBox, new Vector2(
                             renderObject.Aabb.GetPos().X + gameState.DisplayShift.X,
                             renderObject.Aabb.GetPos().Y + gameState.DisplayShift.Y), Color.White);

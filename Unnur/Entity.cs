@@ -13,6 +13,7 @@ namespace Unnur
 
         protected Vector2 coordinates;
         protected Vector2 dimensions;
+
         protected bool hasPhysics;
         protected bool isCollideable;
         protected bool isAnimated;
