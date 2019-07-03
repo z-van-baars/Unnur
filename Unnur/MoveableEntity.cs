@@ -36,9 +36,19 @@ namespace Unnur
         {
             return velocity;
         }
-        public virtual void Deflect()
+        public virtual void Deflect(Entity impactSurface)
         {
-            velocity = new Vector2(-velocity.X, -velocity.Y);
+            float newXVelocity = (float)(-velocity.X * 0.5);
+            float newYVelocity = (float)(-velocity.Y * 0.5);
+            if (Math.Abs(newXVelocity) < 0.1)
+            {
+                newXVelocity = 0;
+            }
+            if (Math.Abs(newYVelocity) < 0.1)
+            {
+                newYVelocity = 0;
+            }
+            velocity = new Vector2(newXVelocity, newYVelocity);
         }
     }
 }

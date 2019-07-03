@@ -25,10 +25,8 @@ namespace Unnur
 
         private Collision collision;
         public Point MousePos;
-        public MouseState MouseState;
-        public KeyboardState KeyboardState;
         public Point CursorMapPos;
-        public Point DisplayShift;
+        
 
         public Unnur()
         {
@@ -51,7 +49,7 @@ namespace Unnur
         {
             gameState = new GameState();
             IsMouseVisible = true;
-            DisplayShift = new Point(200, 10);
+            gameState.DisplayShift = new Point(200, 10);
             gameState.currentScene = new Dungeon(new Point(60, 30));
             gameState.Player = new Player(new Vector2(32, 64), new Vector2(32, 600));
             gameState.currentScene.AddCharacter(gameState.Player);
@@ -75,6 +73,7 @@ namespace Unnur
             collisionHelper = Content.Load<Texture2D>("art/collision_visualizer");
 
             /// Graphics initialization stuff
+            /// This just generates on the fly textures for the wall objects
             foreach (Entity wallObject in gameState.currentScene.GetCollideableEntities())
             {
                 if (wallObject.Image == null)
@@ -89,7 +88,10 @@ namespace Unnur
             spriteBatch.Begin();
             foreach (Entity entityObject in gameState.currentScene.GetEntities())
             {
-                RenderTarget2D newAabbRenderBox = new RenderTarget2D(GraphicsDevice, (int)entityObject.Aabb.GetWidth(), (int)entityObject.Aabb.GetHeight());
+                RenderTarget2D newAabbRenderBox = new RenderTarget2D(
+                    GraphicsDevice,
+                    (int)entityObject.Aabb.GetWidth(),
+                    (int)entityObject.Aabb.GetHeight());
                 RenderTarget2D dot = new RenderTarget2D(GraphicsDevice, 1, 1);
                 GraphicsDevice.SetRenderTarget(dot);
                 GraphicsDevice.Clear(Color.Red);
@@ -135,58 +137,76 @@ namespace Unnur
         protected override void Update(GameTime gameTime)
         {
             var random = new Random();
-            var lastKeyboardState = KeyboardState;
-            KeyboardState = Keyboard.GetState();
-            var lastMouseState = MouseState;
-            MouseState = Mouse.GetState();
-            MousePos.X = MouseState.X;
-            MousePos.Y = MouseState.Y;
+            gameState.LogInputs(Keyboard.GetState(), Mouse.GetState());
 
 
-            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
+            MousePos.X = gameState.GetMouseState().X;
+            MousePos.Y = gameState.GetMouseState().Y;
+
+
+            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed
+                || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
-            if (KeyboardState.IsKeyDown(Keys.D))
+            if (gameState.GetKeyState().IsKeyDown(Keys.D))
             {
                 gameState.Player.SetVelocity(5, 0);
             }
-            if (KeyboardState.IsKeyDown(Keys.A))
+            if (gameState.GetKeyState().IsKeyDown(Keys.A))
             {
                 gameState.Player.SetVelocity(-5, 0);
             }
-            if (KeyboardState.IsKeyDown(Keys.Space)
-                && lastKeyboardState.IsKeyUp(Keys.Space))
+            if (gameState.GetKeyState().IsKeyDown(Keys.Space)
+                && gameState.GetLastKeyState().IsKeyUp(Keys.Space))
             {
                 gameState.Player.Jump();
             }
-            if (KeyboardState.IsKeyDown(Keys.S))
+            if (gameState.GetKeyState().IsKeyDown(Keys.S))
             {
                 gameState.Player.Crouch();
             }
-            if (KeyboardState.IsKeyDown(Keys.Escape))
+            if (gameState.GetKeyState().IsKeyDown(Keys.Escape))
             {
                 Exit();
             }
-            if (MouseState.LeftButton == ButtonState.Released
-                && lastMouseState.LeftButton == ButtonState.Pressed)
+            if (gameState.GetMouseState().LeftButton == ButtonState.Released
+                && gameState.GetLastMouseState().LeftButton == ButtonState.Pressed)
             {
 
             }
 
-            DisplayShift = new Point(-(int)gameState.Player.GetLeft() + (int)(DisplayDimensions.X / 2) - 32, -(int)gameState.Player.GetTop() + (int)DisplayDimensions.Y / 2 - 64);
+            gameState.DisplayShift = new Point(
+                -(int)gameState.Player.GetLeft() + (int)(DisplayDimensions.X / 2) - 32,
+                -(int)gameState.Player.GetTop() + (int)DisplayDimensions.Y / 2 - 64);
+
             // TODO: Add your update logic here
             foreach (PhysicalEntity physicalEntity in gameState.currentScene.GetPhysicalEntities())
             {
-                physicalEntity.ApplyGravity();
+                foreach (CollideableEntity collideableEntity in gameState.currentScene.GetCollideableEntities())
+                {
+                    if (!(collision.CollisionCheck(
+                            physicalEntity,
+                            collideableEntity,
+                            physicalEntity.GetVelocity()))
+                        && collideableEntity != physicalEntity)
+                    {
+                        physicalEntity.ApplyGravity();
+                        break;
+                    }
+                }
+                
             }
             foreach (MoveableEntity movingEntity in gameState.currentScene.GetMovingEntities())
             {
                 foreach (CollideableEntity collideableEntity in gameState.currentScene.GetCollideableEntities())
                 {
-                    if (collision.CollisionCheck(movingEntity, collideableEntity, movingEntity.GetVelocity())
+                    if (collision.CollisionCheck(
+                            movingEntity,
+                            collideableEntity,
+                            movingEntity.GetVelocity())
                         && collideableEntity != movingEntity)
                     {
-                        movingEntity.ResetVelocity();
+                        movingEntity.Deflect(collideableEntity);
                         break;
                     }
                 }
@@ -206,7 +226,9 @@ namespace Unnur
             spriteBatch.Begin();
             foreach (Entity renderObject in gameState.currentScene.GetEntities())
             {
-                spriteBatch.Draw(renderObject.Image, new Vector2(renderObject.GetLeft() + DisplayShift.X, renderObject.GetTop() + DisplayShift.Y), Color.White);
+                spriteBatch.Draw(renderObject.Image, new Vector2(
+                    renderObject.GetLeft() + gameState.DisplayShift.X,
+                    renderObject.GetTop() + gameState.DisplayShift.Y), Color.White);
                 List<Point> tilesOccupied;
                 tilesOccupied = renderObject.GetOccupiedTiles();
                 foreach (Point tileOccupied in tilesOccupied)
@@ -214,7 +236,9 @@ namespace Unnur
                     if (renderObject.IsCollideable())
                     {
                         /// spriteBatch.Draw(collisionHelper, new Vector2(tileOccupied.X * 32 + DisplayShift.X, tileOccupied.Y * 32 + DisplayShift.Y), Color.White);
-                        spriteBatch.Draw(renderObject.Aabb.RenderBox, new Vector2(renderObject.Aabb.GetPos().X + DisplayShift.X, renderObject.Aabb.GetPos().Y + DisplayShift.Y), Color.White);
+                        spriteBatch.Draw(renderObject.Aabb.RenderBox, new Vector2(
+                            renderObject.Aabb.GetPos().X + gameState.DisplayShift.X,
+                            renderObject.Aabb.GetPos().Y + gameState.DisplayShift.Y), Color.White);
                     }
                 }
             }
