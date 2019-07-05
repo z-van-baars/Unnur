@@ -10,7 +10,7 @@ namespace Unnur
     class CollideableEntity : Entity
     {
 
-        public CollideableEntity(Vector2 dimensions, Vector2 coordinates, Vector2 aabbDimensions) : base(dimensions, coordinates, aabbDimensions)
+        public CollideableEntity(Vector2 dimensions, Vector2 coordinates, Vector2 aabbDimensions, Scene currentScene) : base(dimensions, coordinates, aabbDimensions, currentScene)
         {
             isCollideable = true;
             

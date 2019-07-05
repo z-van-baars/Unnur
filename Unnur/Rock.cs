@@ -9,7 +9,7 @@ namespace Unnur
 {
     class Rock : PhysicalEntity
     {
-        public Rock(Vector2 dimensions, Vector2 coordinates) : base(dimensions, coordinates, dimensions)
+        public Rock(Vector2 dimensions, Vector2 coordinates, Scene currentScene) : base(dimensions, coordinates, dimensions, currentScene)
         {
         }
     }

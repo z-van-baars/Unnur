@@ -12,10 +12,11 @@ namespace Unnur
     {
 
 
-        public Wall(Vector2 dimensions, Vector2 coordinates) : base(
+        public Wall(Vector2 dimensions, Vector2 coordinates, Scene currentScene) : base(
             new Vector2(dimensions.X * 32, dimensions.Y * 32),
             new Vector2(coordinates.X * 32, coordinates.Y * 32),
-            new Vector2(dimensions.X * 32, dimensions.Y * 32))
+            new Vector2(dimensions.X * 32, dimensions.Y * 32),
+            currentScene)
         {
         }
 

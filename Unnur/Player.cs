@@ -40,7 +40,7 @@ namespace Unnur
         public const float MinJumpSpeed = -5;
         public const float WalkSpeed = 5;
 
-        public Player(Vector2 dimensions, Vector2 coordinates) : base(dimensions, coordinates, dimensions)
+        public Player(Vector2 dimensions, Vector2 coordinates, Scene currentScene) : base(dimensions, coordinates, dimensions, currentScene)
         {
             coordinates = new Vector2();
             KInputs = new bool[(int)KeyInput.Count];
@@ -83,7 +83,7 @@ namespace Unnur
             KInputs[(int)KeyInput.MoveLeft] = keyState.IsKeyDown(Keys.A);
             KInputs[(int)KeyInput.Jump] = keyState.IsKeyDown(Keys.Space);
         }
-        public override void Update(KeyboardState keyState, MouseState mouseState)
+        public override void Update(KeyboardState keyState, MouseState mouseState, Collision collision, Scene currentScene)
         {
             KeyInputSetter(keyState, mouseState);
             switch (CurrentState)
@@ -218,7 +218,9 @@ namespace Unnur
             {
                 /// play bumping sound if it's different from planding sound
             }
+            OnGround = IsOnGround(collision, currentScene);
             UpdatePrevInputs();
+            ResetOccupiedTiles(currentScene);
         }
     }
 }

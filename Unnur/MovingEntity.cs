@@ -27,7 +27,7 @@ namespace Unnur
         public Vector2 Scale;
 
         
-        public MovingEntity(Vector2 dimensions, Vector2 coordinates, Vector2 aabbDimensions) : base(dimensions, coordinates, aabbDimensions)
+        public MovingEntity(Vector2 dimensions, Vector2 coordinates, Vector2 aabbDimensions, Scene currentScene) : base(dimensions, coordinates, aabbDimensions, currentScene)
         {
             hasPhysics = true;
         }
@@ -45,13 +45,6 @@ namespace Unnur
             Aabb.SetPosition(coordinates);
             Aabb.Recenter();
 
-            if (coordinates.Y >= 862)
-            {
-                coordinates.Y = 862;
-                OnGround = true;
-            }
-            else
-                OnGround = false;
         }
         public void SetVelocity(double xTranslation, double yTranslation)
         {

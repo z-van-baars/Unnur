@@ -77,5 +77,13 @@ namespace Unnur
             collideableEntities.Add(newPhysicalEntity);
             physicalEntities.Add(newPhysicalEntity);
         }
+        public Tile GetTile(Point tilePoint)
+        {
+            return tiles[tilePoint.Y, tilePoint.X];
+        }
+        public Tile[,] GetAllTiles()
+        {
+            return tiles;
+        }
     }
 }

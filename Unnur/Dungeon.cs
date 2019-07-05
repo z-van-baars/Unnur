@@ -15,8 +15,8 @@ namespace Unnur
         {
             Random random = new Random();
             
-            Wall floor = new Wall(new Vector2(dimensions.X, 1), new Vector2(0, dimensions.Y - 1));
-            Wall wall2 = new Wall(new Vector2(1, 1), new Vector2(random.Next(0, dimensions.X), dimensions.Y - 2));
+            Wall floor = new Wall(new Vector2(dimensions.X, 1), new Vector2(0, dimensions.Y - 1), this);
+            Wall wall2 = new Wall(new Vector2(1, 1), new Vector2(random.Next(0, dimensions.X), dimensions.Y - 2), this);
 
             AddStaticCollideable(floor);
             AddStaticCollideable(wall2);

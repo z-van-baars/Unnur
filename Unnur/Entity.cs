@@ -21,13 +21,18 @@ namespace Unnur
         public Texture2D Image;
         public List<Point> OccupiedTiles;
 
-        public Entity(Vector2 dimensions, Vector2 coordinates, Vector2 aabbDimensions)
+        public Entity(Vector2 dimensions, Vector2 coordinates, Vector2 aabbDimensions, Scene currentScene)
         {
             this.coordinates = coordinates;
             this.dimensions = dimensions;
             hasPhysics = false;
             Vector2 aabbCoordinates = new Vector2(coordinates.X + (dimensions.X - aabbDimensions.X) / 2, coordinates.Y + (dimensions.Y - aabbDimensions.Y) / 2);
             Aabb = new AABB(aabbDimensions, aabbCoordinates);
+            SetOccupiedTiles();
+            foreach (Point tilePoint in OccupiedTiles)
+            {
+                currentScene.GetTile(tilePoint).AddMember(this);
+            }
         }
         public float GetWidth()
         {
@@ -89,6 +94,19 @@ namespace Unnur
         public void SetOccupiedTiles()
         {
             OccupiedTiles = GetOccupiedTiles();
+        }
+        public void ResetOccupiedTiles(Scene currentScene)
+        {
+            List<Point> prevOccupiedtiles = OccupiedTiles;
+            SetOccupiedTiles();
+            foreach (Point tilePoint in OccupiedTiles)
+            {
+                currentScene.GetTile(tilePoint).AddMember(this);
+            }
+            foreach (Point tilePoint in prevOccupiedtiles)
+            {
+                currentScene.GetTile(tilePoint).RemoveMember(this);
+            }
         }
 
     }

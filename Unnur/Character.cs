@@ -9,7 +9,7 @@ namespace Unnur
 {
     class Character : PhysicalEntity
     {
-        public Character(Vector2 dimensions, Vector2 coordinates, Vector2 aabbDimensions) : base(dimensions, coordinates, aabbDimensions)
+        public Character(Vector2 dimensions, Vector2 coordinates, Vector2 aabbDimensions, Scene currentScene) : base(dimensions, coordinates, aabbDimensions, currentScene)
         {
 
         }

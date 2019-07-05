@@ -52,7 +52,7 @@ namespace Unnur
             IsMouseVisible = true;
             gameState.DisplayShift = new Point(200, 10);
             gameState.currentScene = new Dungeon(new Point(60, 30));
-            gameState.Player = new Player(new Vector2(32, 64), new Vector2(32, 600));
+            gameState.Player = new Player(new Vector2(32, 64), new Vector2(32, 600), gameState.currentScene);
             gameState.currentScene.AddCharacter(gameState.Player);
             collision = new Collision();
 
@@ -84,6 +84,7 @@ namespace Unnur
                     GraphicsDevice.SetRenderTarget(newWallImage);
                     GraphicsDevice.Clear(Color.Azure);
                     wallObject.Image = newWallImage;
+                    GraphicsDevice.SetRenderTarget(null);
                 }
 
             }
@@ -128,7 +129,11 @@ namespace Unnur
             if (gameState.GetMouseState().LeftButton == ButtonState.Released
                 && gameState.GetLastMouseState().LeftButton == ButtonState.Pressed)
             {
-                Rock newRock = new Rock(new Vector2(20, 20), new Vector2(MousePos.X - gameState.DisplayShift.X, MousePos.Y - gameState.DisplayShift.Y));
+                Rock newRock = new Rock(new Vector2(20, 20),
+                                        new Vector2(
+                                            MousePos.X - gameState.DisplayShift.X,
+                                            MousePos.Y - gameState.DisplayShift.Y),
+                                        gameState.currentScene);
                 newRock.Image = rockSprite;
                 gameState.currentScene.AddPhysicalEntity(newRock);
                 gameState.ResetAABBRenderBoxes(GraphicsDevice);
@@ -140,7 +145,7 @@ namespace Unnur
 
             foreach (PhysicalEntity physEntity in gameState.currentScene.GetPhysicalEntities())
             {
-                physEntity.Update(gameState.GetKeyState(), gameState.GetMouseState());
+                physEntity.Update(gameState.GetKeyState(), gameState.GetMouseState(), collision, gameState.currentScene);
             }
             gameState.ArchiveInputs();
             base.Update(gameTime);
