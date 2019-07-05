@@ -16,7 +16,7 @@ namespace Unnur
             Fall
         }
         public PhysicalObjectState CurrentState = PhysicalObjectState.Rest;
-        private int maxSpeed = 11;
+        private int maxSpeed = 1;
 
         public PhysicalEntity(Vector2 dimensions, Vector2 coordinates, Vector2 aabbDimensions, Scene currentScene) : base(dimensions, coordinates, aabbDimensions, currentScene)
         {
@@ -24,7 +24,6 @@ namespace Unnur
         }
         public void ApplyGravity()
         {
-            int maxSpeed = 11;
             Vector2 newVelocity = new Vector2((float)Velocity.X / 2, Math.Min(maxSpeed, Velocity.Y + 1));
             Velocity = newVelocity;
         }
@@ -76,43 +75,28 @@ namespace Unnur
         }
         public bool IsOnGround(Collision collision, Scene currentScene)
         {
-            // var center = new Vector2(coordinates.X + Aabb.GetWidth() / 2, coordinates.Y + Aabb.GetHeight() / 2);
             var bottomLeft = new Vector2(Aabb.GetLeft(), Aabb.GetBottom());
             var bottomRight = new Vector2(Aabb.GetRight(), Aabb.GetBottom());
-            List<Entity> localCollideables = new List<Entity>();
-            /// we add 32 because that's the width of one tile
-            for (var checkedTile = bottomLeft; ; checkedTile.X += 32)
-            {
-                // skip back to the closest tile if we're past the edge of the test line
-                checkedTile.X = Math.Min(checkedTile.X, bottomRight.X);
-                Point tileIndex = new Point((int)(checkedTile.X / 32), (int)(bottomLeft.Y / 32));
-                foreach (Entity localEntity in currentScene.GetTile(tileIndex).GetLocalEntities())
-                {
-                    if (localEntity.IsCollideable())
-                    {
-                        localCollideables.Add(localEntity);
-                    }
-                }
 
-                if (checkedTile.X >= bottomRight.X)
-                {
-                    break;
-                }
-            }
-            for (var x = bottomLeft.X; x <= bottomRight.X; x++)
-            {
-                foreach (Entity collideableEntity in localCollideables)
-                {
-                    if (collision.PointCollisionCheck(new Vector2(x, bottomLeft.Y + 1), collideableEntity))
-                    {
-                        return true;
-                    }
-                }
-            }
-            return false;
+            int tileWidth = 32;
+
+            int initialX = (int)bottomLeft.X / tileWidth;
+            int numTiles = (int)(bottomRight.X - bottomLeft.X) / tileWidth;
+            /// we add one here so that we can test the area immediately UNDER the AABB
+            int yIndex = (int)(bottomLeft.Y + 1) / tileWidth;
 
 
 
+            return Enumerable
+                .Range(initialX, initialX + numTiles)                    // x indices
+                .Select(x => currentScene.GetTile(new Point(x, yIndex))) // tiles in the x range
+                .SelectMany(tile => tile.GetLocalEntities())             // entities in the tile
+                .Where(entity => entity.IsCollideable())                 // collidable only
+                .Any(entity => Enumerable                                // do they actually collide?
+                    .Range((int)bottomLeft.X, (int)bottomRight.X)                 // x indices
+                    .Select(x => new Vector2(x, bottomLeft.Y + 1)) // vector coords
+                    .Any(v => collision.PointCollisionCheck(v, entity))        // collision check
+                );
         }
     }
 }

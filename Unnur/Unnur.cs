@@ -51,7 +51,7 @@ namespace Unnur
             gameState = new GameState();
             IsMouseVisible = true;
             gameState.DisplayShift = new Point(200, 10);
-            gameState.currentScene = new Dungeon(new Point(60, 30));
+            gameState.currentScene = new Dungeon(new Point(60, 34));
             gameState.Player = new Player(new Vector2(32, 64), new Vector2(32, 600), gameState.currentScene);
             gameState.currentScene.AddCharacter(gameState.Player);
             collision = new Collision();
